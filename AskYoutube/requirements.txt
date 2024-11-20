@@ -1,0 +1,12 @@
+flask
+flask-cors
+chromadb
+assemblyai
+langchain
+langchain-community
+langchain-cohere
+pytubefix
+python-dotenv
+groq
+cohere
+unstructured

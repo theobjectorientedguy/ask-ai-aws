@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Transcription and Query App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      max-width: 800px;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h1>Video Transcription and Query App</h1>
+
+  <h2>Transcribe YouTube Video</h2>
+  <form id="transcriptionForm">
+    <label for="videoUrl">YouTube Video URL:</label>
+    <input type="text" id="videoUrl" name="videoUrl" placeholder="Enter YouTube video URL" required>
+    <button type="submit">Transcribe</button>
+  </form>
+
+  <h3>Transcription Result:</h3>
+  <pre id="transcriptionResult">Your transcription will appear here...</pre>
+
+  <h2>Query Transcription</h2>
+  <form id="queryForm">
+    <label for="queryText">Query Text:</label>
+    <input type="text" id="queryText" name="queryText" placeholder="Enter your question" required>
+    <button type="submit">Search</button>
+  </form>
+
+  <h3>Query Results:</h3>
+  <pre id="queryResult">Your query results will appear here...</pre>
+
+  <script>
+    const transcriptionForm = document.getElementById("transcriptionForm");
+    const transcriptionResult = document.getElementById("transcriptionResult");
+    const queryForm = document.getElementById("queryForm");
+    const queryResult = document.getElementById("queryResult");
+
+    // Handle transcription form submission
+    transcriptionForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const videoUrl = document.getElementById("videoUrl").value;
+      transcriptionResult.textContent = "Processing transcription...";
+
+      try {
+        const response = await fetch("http://localhost:5000/transcribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ video_url: videoUrl })
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch transcription");
+
+        const result = await response.json();
+        transcriptionResult.textContent = result.transcription || "No transcription found.";
+      } catch (error) {
+        console.error("Error:", error);
+        transcriptionResult.textContent = "An error occurred. Please try again.";
+      }
+    });
+
+    // Handle query form submission
+    queryForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const queryText = document.getElementById("queryText").value;
+      queryResult.textContent = "Processing query...";
+
+      try {
+        const response = await fetch("http://localhost:5000/query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query_text: queryText })
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch query results");
+
+        const result = await response.json();
+        queryResult.textContent = result.results.map(res => `${res.content}\n---`).join("\n");
+      } catch (error) {
+        console.error("Error:", error);
+        queryResult.textContent = "An error occurred. Please try again.";
+      }
+    });
+  </script>
+</body>
+</html>
